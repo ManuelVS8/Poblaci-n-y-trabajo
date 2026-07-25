@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="google" content="notranslate">
-    <title>La población y el trabajo</title>
+    <title>Población y trabajo</title>
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/icono.ico">
     <style>
         * { box-sizing: border-box; margin:0; padding:0; }
@@ -199,7 +199,7 @@
     <!-- ===== PANTALLA INICIO ===== -->
     <section class="screen active" id="startScreen">
         <header>
-            <h1 id="startTitle">La población y el trabajo</h1>
+            <h1 id="startTitle">Población y trabajo</h1>
         </header>
         <div class="start-content">
             <div class="advice-box">
@@ -289,7 +289,7 @@
     <!-- ===== PANTALLA FINAL ===== -->
     <section class="screen" id="finalScreen">
         <header>
-            <h1 class="final-title" id="finalTitle">La población y el trabajo</h1>
+            <h1 class="final-title" id="finalTitle">Población y trabajo</h1>
         </header>
         <div class="results">
             <div id="trophyDiv" class="trophy hidden">🏆</div>
@@ -456,7 +456,7 @@ const summaryData = {
 ===================================================== */
 const i18n = {
     es: {
-        startTitle: 'La población y el trabajo',
+        startTitle: 'Población y trabajo',
         startSubtitle: 'La población y el trabajo.',
         startAdvice: 'La <span class="highlight-keyword">población</span> se clasifica en <span class="highlight-keyword">activa</span> o <span class="highlight-keyword">inactiva</span>. La población activa puede estar <span class="highlight-keyword">ocupada</span> o en <span class="highlight-keyword">paro</span>. La población ocupada puede ser <span class="highlight-keyword">autónoma</span> o <span class="highlight-keyword">asalariada</span>.<br><strong style="display:block;margin-top:.5rem;text-align:center;">¡Ánimo!</strong>',
         startBtn: 'Comenzar',
@@ -469,7 +469,7 @@ const i18n = {
         game2Title: 'La población',
         game3Title: 'La población',
         checkBtn: 'Comprobar',
-        finalTitle: 'La población y el trabajo',
+        finalTitle: 'Población y trabajo',
         scoreLabel: 'Puntuación:',
         timeLabel: 'Tiempo:',
         backBtn: 'Volver al menú',
@@ -565,12 +565,17 @@ function forceInitTTS() {
     try {
         const u = new SpeechSynthesisUtterance('');
         window.speechSynthesis.speak(u);
-        window.speechSynthesis.cancel();
+        safeCancelSpeech();
     } catch(e) {}
 }
 
+function safeCancelSpeech() {
+    try { window.speechSynthesis.cancel(); } catch(e) {}
+}
+
 function getBestVoice(lang) {
-    const voices = window.speechSynthesis.getVoices();
+    let voices = [];
+    try { voices = window.speechSynthesis.getVoices(); } catch(e) { return null; }
     if (!voices.length) return null;
     const prefer = lang === 'es' ? ['Google español','Natural','Microsoft'] : ['Google UK','Natural','Microsoft'];
     for (let p of prefer) {
@@ -582,7 +587,7 @@ function getBestVoice(lang) {
 }
 
 function speakText(text, lang) {
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     if (isMuted) return;
     try {
         const u = new SpeechSynthesisUtterance(text);
@@ -629,7 +634,7 @@ document.querySelectorAll('.lang-flag-btn').forEach(btn => {
 });
 
 function applyLanguage(lang) {
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     const t = i18n[lang];
     document.getElementById('startTitle').innerHTML = t.startTitle;
     document.getElementById('startSubtitle').innerHTML = t.startSubtitle;
@@ -692,7 +697,7 @@ document.getElementById('muteBtn').addEventListener('click', () => {
     if (isMuted) {
         btn.classList.add('muted');
         btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
-        window.speechSynthesis.cancel();
+        safeCancelSpeech();
     } else {
         btn.classList.remove('muted');
         btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 3.54a9 9 0 0 1 0 12.73M19.07 4.93a13 13 0 0 1 0 14.14"></path></svg>';
@@ -810,7 +815,7 @@ function handleMatchCardClick(e) {
         return;
     }
 
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     totalAttempts++;
     const prevCard = game1SelectedCard;
     const idA = prevCard.dataset.origIndex;
@@ -826,7 +831,7 @@ function handleMatchCardClick(e) {
         updateProgress();
         if (game1Matches === game1TotalPairs) {
             setTimeout(() => {
-                window.speechSynthesis.cancel();
+                safeCancelSpeech();
                 playSound('completado');
                 setTimeout(() => endGame1(), 1000);
             }, 500);
@@ -846,10 +851,10 @@ function handleMatchCardClick(e) {
 }
 
 function endGame1() {
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     setTimeout(() => {
-        showScreen('game2');
-        initGame2();
+        showScreen('game3');
+        initGame3();
     }, 300);
 }
 
@@ -897,7 +902,7 @@ function buildHotspots2() {
 }
 
 function checkGame2Answer(idx) {
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     totalAttempts++;
     const correct = idx === game2Shuffled[game2CurrentIndex];
     const hotspot = document.querySelector(`#hotspotsContainer2 [data-index="${idx}"]`);
@@ -940,11 +945,10 @@ window.addEventListener('resize', () => {
 });
 
 function endGame2() {
-    window.speechSynthesis.cancel();
-    setTimeout(() => {
-        showScreen('game3');
-        initGame3();
-    }, 300);
+    safeCancelSpeech();
+    // Último juego de la secuencia: no reproduce sonido propio de completado,
+    // para evitar solapamiento con el sonido de victoria/completado de la pantalla final.
+    setTimeout(() => endGame(), 400);
 }
 
 /* ====================================================
@@ -991,7 +995,7 @@ function buildHotspots3() {
 }
 
 function checkGame3Answer(idx) {
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     totalAttempts++;
     const correct = idx === game3Shuffled[game3CurrentIndex];
     const hotspot = document.querySelector(`#hotspotsContainer3 [data-index="${idx}"]`);
@@ -1025,10 +1029,11 @@ document.getElementById('btnPlayWord3').addEventListener('click', () => {
 });
 
 function endGame3() {
-    window.speechSynthesis.cancel();
-    // Último juego de la secuencia: no reproduce sonido propio de completado,
-    // para evitar solapamiento con el sonido de victoria/completado de la pantalla final.
-    setTimeout(() => endGame(), 400);
+    safeCancelSpeech();
+    setTimeout(() => {
+        showScreen('game2');
+        initGame2();
+    }, 300);
 }
 
 /* ====================================================
@@ -1105,7 +1110,7 @@ function updateProgress() {
 ===================================================== */
 function endGame() {
     clearInterval(timerInterval);
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     const score = calcularPuntuacionFinal();
     const time = getElapsedSeconds();
     lastElapsedSeconds = time;
